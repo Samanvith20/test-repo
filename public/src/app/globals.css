@@ -1,0 +1,319 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+
+  /* Primary Colors */
+  --primary-50: #fdf6ef;
+  --primary-100: #fbe9d9;
+  --primary-200: #f6d0b2;
+  --primary-300: #f0b081;
+  --primary-400: #e77b3e;
+  --primary-500: #e4662b;
+  --primary-600: #d54f21;
+  --primary-700: #b13b1d;
+  --primary-800: #8d301f;
+  --primary-900: #722a1c;
+  --primary-950: #3d130d;
+
+  /* Secondary Colors */
+  --secondary-50: #f1fcfa;
+  --secondary-100: #d1f6f2;
+  --secondary-200: #a3ece6;
+  --secondary-300: #6dbbd5;
+  --secondary-400: #3fc2bf;
+  --secondary-500: #26a6a6;
+  --secondary-600: #1e8d8f;
+  --secondary-700: #1a696b;
+  --secondary-800: #1a5255;
+  --secondary-900: #1a4547;
+  --secondary-950: #09272a;
+
+  /* Text Colors */
+  --text-50: #f6f6f6;
+  --text-100: #e7e7e7;
+  --text-200: #d1d1d1;
+  --text-300: #b0b0b0;
+  --text-400: #888888;
+  --text-500: #6d6d6d;
+  --text-600: #5d5d5d;
+  --text-700: #4f4f4f;
+  --text-800: #454545;
+  --text-900: #3d3d3d;
+  --text-950: #252525;
+
+  /* Optional: Foreground Color */
+  /* --foreground: #171717; */
+}
+
+body {
+  /* color: var(--foreground); */
+  /* background: var(--background); */
+  font-family: Arial, Helvetica, sans-serif;
+  outline: var(--primary-400);
+}
+/* * :focus {
+  outline: 2px solid var(--primary-400); Replace with your desired color
+  outline-offset: 2px; Optional: adds space between the element and the outline
+} */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+.btn {
+  width: 259px; /* Default width for larger screens */
+  height: 50px; /* Default height */
+  border: 1px solid var(--primary-400);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 0;
+  transition: 1s;
+  border-radius: 5px;
+  box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.2);
+}
+
+@media screen and (max-width: 762px) {
+  .btn {
+    width: 150px; /* Reduced width for mobile */
+    height: 45px; /* Adjusted height for mobile */
+    box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn::before {
+    height: 45px; /* Adjusted before pseudo-element height for mobile */
+    width: 150px; /* Adjusted before pseudo-element width for mobile */
+  }
+
+  .btn::after {
+    width: 100px; /* Adjusted after pseudo-element width for mobile */
+    height: 25px; /* Adjusted after pseudo-element height for mobile */
+  }
+}
+
+.btn::before,
+.btn::after {
+  position: absolute;
+  background: #fff;
+  z-index: -1;
+  transition: 1s;
+  content: "";
+  border-radius: 5px;
+}
+
+.btn::before {
+  height: 50px; /* Default height for larger screens */
+  width: 259px; /* Default width for larger screens */
+}
+
+.btn::after {
+  width: 150px; /* Default width for larger screens */
+  height: 30px; /* Default height for larger screens */
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font-weight: 600;
+}
+
+.btn:hover::before {
+  width: 0px;
+  background: #fff;
+}
+
+.btn:hover::after {
+  height: 0px;
+  background: #fff;
+}
+
+.btn:hover {
+  background: #fff;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Landing page strip  */
+.wrapper {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.marquee {
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  animation: marquee 5s linear infinite;
+}
+
+.marquee p {
+  display: inline-block;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Checkbox */
+.custom-checkbox {
+  appearance: none; /* Remove default checkbox styles */
+  width: 17px; /* Adjust width */
+  height: 17px; /* Adjust height */
+  background-color: #fff; /* Background color of the checkbox */
+  border: 2px solid #d9d9d9; /* Border color and thickness */
+  border-radius: 4px; /* Rounded corners */
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
+}
+
+/* Checked State */
+.custom-checkbox:checked {
+  background-color: white; /* Background color when checked */
+  border-color: #f58a42; /* Border color when checked */
+}
+
+/* Checkmark Styling */
+.custom-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  top: 48%;
+  left: 52%;
+  width: 5px; /* Adjust width for proper tick size */
+  height: 12px; /* Adjust height for proper tick size */
+  border: solid #f58a42; /* Checkmark color */
+  border-width: 0 2px 2px 0; /* Checkmark size and style */
+  transform: translate(-50%, -60%) rotate(45deg); /* Adjust position and rotate for proper rendering */
+  transition: border-color 0.3s; /* Smooth transition for checkmark */
+}
+
+/* Optional: Hover effect */
+.custom-checkbox:hover {
+  border-color: #f58a42; /* Change border color on hover */
+}
+
+.custom-slider {
+  -webkit-appearance: none; /* Remove default styling for Webkit browsers */
+  appearance: none; /* Remove default styling for other browsers */
+  width: 100%;
+  height: 4px; /* Track height */
+  background: var(
+    --slider-background,
+    #b0b0b0
+  ); /* Use custom property for track color */
+  outline: none;
+  border-radius: 2px; /* Rounded corners for track */
+  transition: background 0.3s ease-in-out; /* Smooth transition for background */
+}
+
+/* Slider thumb */
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default styling for Webkit browsers */
+  appearance: none;
+  width: 20px; /* Thumb width */
+  height: 20px; /* Thumb height */
+  background: #f58a42; /* Thumb color */
+  border-radius: 50%; /* Rounded thumb */
+  cursor: pointer; /* Cursor style */
+  /* box-shadow: 0 0 0 3px #fff, 0 0 0 6px #f58a42;  */
+}
+
+.custom-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #f58a42;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none; /* Remove default border */
+}
+
+.custom-slider::-ms-thumb {
+  width: 20px;
+  height: 20px;
+  background: #f58a42;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none; /* Remove default border */
+}
+
+.slider-container {
+  margin: 20px;
+}
+.slider-thumb-value {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: -20px;
+  background-color: #fff;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 13px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.01s;
+  width: fit-content;
+  white-space: nowrap;
+}
+@media screen and (max-width: 1024px) {
+  .slider-thumb-value{
+    transform: translate(-0%, -50%);
+    top: 4px;
+    left: 10px;
+  }
+}
+/* Custom Scroll bar */
+.custom-scrollbar::-webkit-scrollbar {
+  /* Customize the scrollbar width */
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  padding: 10px 0px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  /* Customize the scrollbar track */
+  background: transparent;
+  max-height: 50%;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  /* Customize the scrollbar thumb */
+  background-color: var(--secondary-600);
+  border-radius: 10px;
+}
+
+/* Use the following when we require to have offset in both top and bottom of the scroll bar track */
+/* .custom-scrollbar::-webkit-scrollbar-track-piece:start {
+  background: transparent;
+  margin-top: 40px;
+}
+::-webkit-scrollbar-track-piece:end {
+  background: transparent;
+  margin-bottom: 40px; 
+} */
+
+
+
+
+
