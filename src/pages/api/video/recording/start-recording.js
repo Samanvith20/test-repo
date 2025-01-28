@@ -69,10 +69,13 @@ export default async function handler(req, res) {
         extensionServiceConfig: {
           extensionServices: [
             {
+               
               serviceName: "web_recorder_service",
               errorHandlePolicy: "error_abort",
               serviceParam: {
-                url: `https://test-repo-nine-rho.vercel.app/video/${channelName}`, // Ensure Ngrok bypasses the warning page
+
+                url: `https://test-repo-nine-rho.vercel.app/video/${channelName}?recorder=true`, // Ensure Ngrok bypasses the warning page
+
                 audioProfile: 0,
                 videoWidth: 1280,
                 videoHeight: 720,
