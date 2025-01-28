@@ -1,6 +1,5 @@
 "use client";
 
-import { set } from "mongoose";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
@@ -9,17 +8,20 @@ import { Toaster, toast } from "react-hot-toast";
 // Dynamically import the Call component with SSR disabled
 const Call = dynamic(() => import("@/app/components/Call"), { ssr: false });
 
-export default function Page({ params }) {
+export default function Page({ params, searchParams }) {
   const [isVerified, setIsVerified] = useState(false);
   const [verificationError, setVerificationError] = useState("");
-  const [loading, setloading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
-  const[scheduledClassId, setScheduledClassId] = useState("");
+  const [scheduledClassId, setScheduledClassId] = useState("");
 
+  // Check if the request is from the Agora recorder
+  const isRecorder = searchParams?.recorder === "true";
+ console.log("Is Recorder:", isRecorder);
   console.log("SESSION: ", session);
 
   // Decode channel name to extract ID, username, date, and time
-  const decodechannelName = decodeURIComponent(params.channelname);
+  const decodeChannelName = decodeURIComponent(params.channelname);
   const channelName = params.channelname ? params.channelname.split("_") : [];
   const id = channelName[0] || "";
   const username = channelName[1] || ""; // Parsed username from channel name
@@ -28,7 +30,14 @@ export default function Page({ params }) {
 
   // useEffect hook to verify class details
   useEffect(() => {
-    setloading(true);
+    if (isRecorder) {
+      // Skip verification for recorder
+      setIsVerified(true);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     const verifyClassDetails = async () => {
       try {
         const response = await fetch("/api/video/verify-class", {
@@ -40,7 +49,7 @@ export default function Page({ params }) {
             id,
             date,
             decodedTime,
-            channelName: decodechannelName,
+            channelName: decodeChannelName,
           }),
         });
 
@@ -49,37 +58,36 @@ export default function Page({ params }) {
           console.log("Class details verified:", result.document);
           setScheduledClassId(result.document._id);
           setIsVerified(true);
-          setloading(false);
-          // Set verification state to true if successful
+          setLoading(false);
         } else {
-          toast.error(`Verification failed: ${result.message}`); // Error toast
+          toast.error(`Verification failed: ${result.message}`);
           console.error("Verification failed:", result.message);
-          setVerificationError(result.message); // Set error message if verification fails
+          setVerificationError(result.message);
           setIsVerified(false);
           setTimeout(() => {
-            window.location.href = "/"; // Redirect to home page if verification fails
-          }, 2000); // Add delay for toast visibility
+            window.location.href = "/";
+          }, 2000);
         }
       } catch (error) {
-        toast.error("Error in verifying class details."); // Error toast
+        toast.error("Error in verifying class details.");
         console.error("Error in verifying class details:", error);
         setVerificationError("Error in verifying class details");
         setIsVerified(false);
         setTimeout(() => {
-          window.location.href = "/"; // Redirect to home page on error
-        }, 2000); // Add delay for toast visibility
+          window.location.href = "/";
+        }, 2000);
       }
     };
 
     if (params.channelname) {
       verifyClassDetails();
     }
-  }, [params.channelname]);
+  }, [params.channelname, isRecorder]);
 
   // Spinner Component
   const Spinner = () => (
     <div className="flex justify-center items-center h-screen w-full">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4  border-secondary-600"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-secondary-600"></div>
     </div>
   );
   if (loading) {
@@ -88,14 +96,14 @@ export default function Page({ params }) {
 
   // Check access based on role
   const canAccessCallComponent =
+    isRecorder || // Allow access for the recorder
     (session?.role === "student" && session?.username === username) ||
-    session?.role === "tutor"; // Allow tutors access without username check
+    session?.role === "tutor";
 
   // Only render the Call component if verification is successful and user is authorized
   if (!isVerified || !canAccessCallComponent) {
     return (
       <main className="flex w-full flex-col">
-        {/* Optional error message */}
         {verificationError && (
           <p className="text-red-500">
             Verification failed: {verificationError}
@@ -105,7 +113,7 @@ export default function Page({ params }) {
     );
   }
 
-  const sanitizedChannelName = id + date+ decodedTime;
+  const sanitizedChannelName = id + date + decodedTime;
   console.log("Sanitized Channel Name:", sanitizedChannelName);
 
   return (
