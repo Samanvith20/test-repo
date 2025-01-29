@@ -2,87 +2,96 @@
 
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 
 // Dynamically import the Call component with SSR disabled
 const Call = dynamic(() => import("@/app/components/Call"), { ssr: false });
 
-export default function Page({ params, searchParams }) {
+function Page({ params }) {
   const [isVerified, setIsVerified] = useState(false);
   const [verificationError, setVerificationError] = useState("");
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
   const [scheduledClassId, setScheduledClassId] = useState("");
 
-  // Check if the request is from the Agora recorder
-  const isRecorder = searchParams?.recorder === "true";
- console.log("Is Recorder:", isRecorder);
   console.log("SESSION: ", session);
+  const searchParams = useSearchParams();
+  const recorder = searchParams.get("recorder");
+
+  console.log("searchParams: ", searchParams);
+  console.log("recorder: ", recorder);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  console.log("urlParams: ", urlParams);
+    const  paramRecorder = urlParams.get("recorder");
+    console.log("paramRecorder: ", paramRecorder);
 
   // Decode channel name to extract ID, username, date, and time
-  const decodeChannelName = decodeURIComponent(params.channelname);
+  const decodechannelName = decodeURIComponent(params.channelname);
   const channelName = params.channelname ? params.channelname.split("_") : [];
   const id = channelName[0] || "";
   const username = channelName[1] || ""; // Parsed username from channel name
   const date = channelName[2] || "";
   const decodedTime = decodeURIComponent(channelName[3] || "");
 
-  // useEffect hook to verify class details
   useEffect(() => {
-    if (isRecorder) {
-      // Skip verification for recorder
+    // Skip verification if recorder exists
+    if (recorder) {
+      console.log("Skipping verification as recorder is present.");
       setIsVerified(true);
       setLoading(false);
       return;
     }
 
-    setLoading(true);
-    const verifyClassDetails = async () => {
-      try {
-        const response = await fetch("/api/video/verify-class", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id,
-            date,
-            decodedTime,
-            channelName: decodeChannelName,
-          }),
-        });
+    if (params.channelname) {
+      setLoading(true);
+      const verifyClassDetails = async () => {
+        try {
+          const response = await fetch("/api/video/verify-class", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id,
+              date,
+              decodedTime,
+              channelName: decodechannelName,
+            }),
+          });
 
-        const result = await response.json();
-        if (result.success) {
-          console.log("Class details verified:", result.document);
-          setScheduledClassId(result.document._id);
-          setIsVerified(true);
-          setLoading(false);
-        } else {
-          toast.error(`Verification failed: ${result.message}`);
-          console.error("Verification failed:", result.message);
-          setVerificationError(result.message);
+          const result = await response.json();
+          if (result.success) {
+            console.log("Class details verified:", result.document);
+            setScheduledClassId(result.document._id);
+            setIsVerified(true);
+          } else {
+            toast.error(`Verification failed: ${result.message}`);
+            console.error("Verification failed:", result.message);
+            setVerificationError(result.message);
+            setIsVerified(false);
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 2000);
+          }
+        } catch (error) {
+          toast.error("Error in verifying class details.");
+          console.error("Error in verifying class details:", error);
+          setVerificationError("Error in verifying class details");
           setIsVerified(false);
           setTimeout(() => {
             window.location.href = "/";
           }, 2000);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        toast.error("Error in verifying class details.");
-        console.error("Error in verifying class details:", error);
-        setVerificationError("Error in verifying class details");
-        setIsVerified(false);
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 2000);
-      }
-    };
+      };
 
-    if (params.channelname) {
       verifyClassDetails();
     }
-  }, [params.channelname, isRecorder]);
+  }, [params.channelname, recorder]);
 
   // Spinner Component
   const Spinner = () => (
@@ -90,25 +99,20 @@ export default function Page({ params, searchParams }) {
       <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-secondary-600"></div>
     </div>
   );
+
   if (loading) {
     return <Spinner />;
   }
 
   // Check access based on role
   const canAccessCallComponent =
-    isRecorder || // Allow access for the recorder
     (session?.role === "student" && session?.username === username) ||
-    session?.role === "tutor";
+    session?.role === "tutor"; // Allow tutors access without username check
 
-  // Only render the Call component if verification is successful and user is authorized
   if (!isVerified || !canAccessCallComponent) {
     return (
       <main className="flex w-full flex-col">
-        {verificationError && (
-          <p className="text-red-500">
-            Verification failed: {verificationError}
-          </p>
-        )}
+        {verificationError && <p className="text-red-500">Verification failed: {verificationError}</p>}
       </main>
     );
   }
@@ -120,16 +124,21 @@ export default function Page({ params, searchParams }) {
     <>
       <Toaster />
       <main className="flex w-full flex-col">
-        <Call
-          appId={process.env.NEXT_PUBLIC_AGORA_APP_ID}
-          username={username}
-          channelName={sanitizedChannelName}
-          tutorId={id}
-          date={date}
-          time={decodedTime}
-          scheduledClassId={scheduledClassId}
-        />
+        {/* ✅ Use Suspense inside Page instead of wrapping Page itself */}
+        <Suspense fallback={<Spinner />}>
+          <Call
+            appId={process.env.NEXT_PUBLIC_AGORA_APP_ID}
+            username={username}
+            channelName={sanitizedChannelName}
+            tutorId={id}
+            date={date}
+            time={decodedTime}
+            scheduledClassId={scheduledClassId}
+          />
+        </Suspense>
       </main>
     </>
   );
 }
+
+export default Page;
