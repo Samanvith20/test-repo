@@ -74,7 +74,7 @@ export default async function handler(req, res) {
               errorHandlePolicy: "error_abort",
               serviceParam: {
 
-                url: `https://ed5a-115-98-200-101.ngrok-free.app /video/${channelName}?recorder=true`, // Ensure Ngrok bypasses the warning page
+                url: `https://ed5a-115-98-200-101.ngrok-free.app/video/${channelName}?recorder=true`, // Ensure Ngrok bypasses the warning page
 
                 audioProfile: 0,
                 videoWidth: 1280,
