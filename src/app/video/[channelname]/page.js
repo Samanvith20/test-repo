@@ -190,7 +190,7 @@ function Page({ params }) {
       return;
     }
 
-    if (params.channelname) {
+    if (params.channelname && !recorder) {
       setLoading(true);
       const verifyClassDetails = async () => {
         try {
@@ -225,7 +225,7 @@ function Page({ params }) {
 
       verifyClassDetails();
     }
-  }, [params.channelname, recorder]);
+  }, [params.channelname,]);
 
   // Loading Spinner
   const Spinner = () => (
