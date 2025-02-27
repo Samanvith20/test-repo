@@ -14,18 +14,37 @@ const CameraScanner = () => {
         try {
           // Get all available devices
           const devices = await navigator.mediaDevices.enumerateDevices();
+          console.log("Detected devices:", devices);
+          // Filter for video input devices (cameras)
+          const videoDevices = devices.filter(device => device.kind === 'videoinput');
+          if (videoDevices.length === 0) {
+            console.error("No video devices found");
+            setCameraError("No camera found");
+            return;
+          }
           // Find the back camera (facing 'environment')
-          const backCamera = devices.find(device => device.kind === 'videoinput' && device.facing === 'environment');
+          const backCamera = devices.find(device => device.kind === 'videoinput' );
+          console.log("back",backCamera)
           // If back camera is found, use it
           if (backCamera) {
+            console.log("Using Back Camera");
             const stream = await navigator.mediaDevices.getUserMedia({
               video: { deviceId: backCamera.deviceId },
             });
             videoRef.current.srcObject = stream;
             videoRef.current.play();
             setScanning(true);
+          } else if (frontCamera) {
+            console.log("Using Front Camera");
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: { deviceId: frontCamera.deviceId },
+            });
+            videoRef.current.srcObject = stream;
+            videoRef.current.play();
+            setScanning(true);
           } else {
-            setCameraError("Back camera not found.");
+            setCameraError("No suitable camera found.");
+            console.log("No suitable camera found.");
           }
         } catch (err) {
           console.error("Error accessing camera: ", err);
@@ -36,7 +55,6 @@ const CameraScanner = () => {
       }
     };
     startCamera();
-    // Cleanup the camera stream when the component unmounts
     return () => {
       if (videoRef.current?.srcObject) {
         const stream = videoRef.current.srcObject;
@@ -89,3 +107,12 @@ const CameraScanner = () => {
   );
 };
 export default CameraScanner;
+
+
+
+
+
+
+
+
+
