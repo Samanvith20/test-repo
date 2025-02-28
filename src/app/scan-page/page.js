@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useRef, useState } from "react";
 import jsQR from "jsqr";  // Importing jsQR library for QR code scanning
 const Spinner = () => (
