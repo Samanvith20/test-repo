@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import React from 'react';
 import jsQR from "jsqr";
+import React from 'react';
 
 const CameraScanner = () => {
   const videoRef = useRef(null);
@@ -257,9 +257,3 @@ const CameraScanner = () => {
 };
 
 export default CameraScanner;
-
-React
-
-Reply
-
-
